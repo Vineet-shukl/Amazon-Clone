@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmazonClone - Online Shopping</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        /* Header Styles */
+        .header {
+            background: #232f3e;
+            color: white;
+            padding: 10px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff9900;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 20px;
+            display: flex;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+
+        .search-btn {
+            background: #ff9900;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background 0.3s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .cart-count {
+            background: #ff9900;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Auth Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Product Grid */
+        .products-section {
+            margin: 30px 0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .product-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #B12704;
+            margin-bottom: 10px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .stars {
+            color: #ff9900;
+        }
+
+        .add-to-cart {
+            width: 100%;
+            background: #ff9900;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-to-cart:hover {
+            background: #e68900;
+        }
+
+        /* Cart Styles */
+        .cart-section {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+        }
+
+        .cart-item-details {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            color: #B12704;
+            font-weight: bold;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .qty-btn {
+            background: #f0f0f0;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .cart-total {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .total-price {
+            font-size: 24px;
+            font-weight: bold;
+            color: #B12704;
+        }
+
+        .checkout-btn {
+            background: #ff9900;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: #ff9900;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        /* Categories */
+        .categories {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: white;
+            border: 2px solid #ff9900;
+            color: #ff9900;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active,
+        .category-btn:hover {
+            background: #ff9900;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .search-bar {
+                order: 3;
+                width: 100%;
+                margin: 0;
+            }
+
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .categories {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo">AmazonClone</div>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search products..." id="searchInput">
+                <button class="search-btn" onclick="searchProducts()">🔍</button>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-link" onclick="showSection('products')">Home</a>
+                <a href="#" class="nav-link" id="authLink" onclick="showAuthModal()">Sign In</a>
+                <a href="#" class="nav-link" onclick="showSection('cart')">
+                    Cart <span class="cart-count" id="cartCount">0</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Categories -->
+        <div class="categories">
+            <button class="category-btn active" onclick="filterProducts('all')">All Products</button>
+            <button class="category-btn" onclick="filterProducts('electronics')">Electronics</button>
+            <button class="category-btn" onclick="filterProducts('clothing')">Clothing</button>
+            <button class="category-btn" onclick="filterProducts('books')">Books</button>
+            <button class="category-btn" onclick="filterProducts('home')">Home & Garden</button>
+        </div>
+
+        <!-- Products Section -->
+        <div id="productsSection" class="products-section">
+            <h2 class="section-title">Featured Products</h2>
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Cart Section -->
+        <div id="cartSection" class="cart-section">
+            <h2 class="section-title">Shopping Cart</h2>
+            <div id="cartItems"></div>
+            <div class="cart-total">
+                <div class="total-price">Total: $<span id="totalPrice">0.00</span></div>
+                <button class="checkout-btn" onclick="checkout()">Proceed to Checkout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAuthModal()">&times;</span>
+            <div id="loginForm">
+                <h2>Sign In</h2>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button class="btn-primary" onclick="login()">Sign In</button>
+                <button class="btn-secondary" onclick="showSignup()">Create Account</button>
+            </div>
+            
+            <div id="signupForm" style="display: none;">
+                <h2>Create Account</h2>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="signupEmail" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="signupPassword" placeholder="Create a password">
+                </div>
+                <button class="btn-primary" onclick="signup()">Create Account</button>
+                <button class="btn-secondary" onclick="showLogin()">Back to Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Backend Data Simulation
+        class ECommerceBackend {
+            constructor() {
+                this.products = [
+                    {id: 1, title: "Wireless Bluetooth Earbuds", price: 89.99, category: "electronics", rating: 4.5, reviews: 1250, emoji: "🎧"},
+                    {id: 2, title: "Smart Fitness Watch", price: 199.99, category: "electronics", rating: 4.3, reviews: 890, emoji: "⌚"},
+                    {id: 3, title: "Cotton T-Shirt Pack", price: 24.99, category: "clothing", rating: 4.6, reviews: 2100, emoji: "👕"},
+                    {id: 4, title: "JavaScript Programming Book", price: 39.99, category: "books", rating: 4.8, reviews: 456, emoji: "📚"},
+                    {id: 5, title: "Plant-Based Cookbook", price: 29.99, category: "books", rating: 4.4, reviews: 678, emoji: "🍃"},
+                    {id: 6, title: "Wireless Phone Charger", price: 34.99, category: "electronics", rating: 4.2, reviews: 543, emoji: "🔋"},
+                    {id: 7, title: "Designer Jeans", price: 79.99, category: "clothing", rating: 4.7, reviews: 321, emoji: "👖"},
+                    {id: 8, title: "LED Desk Lamp", price: 45.99, category: "home", rating: 4.5, reviews: 789, emoji: "💡"},
+                    {id: 9, title: "Organic Face Cream", price: 24.99, category: "home", rating: 4.3, reviews: 234, emoji: "🧴"},
+                    {id: 10, title: "Yoga Mat Premium", price: 59.99, category: "home", rating: 4.6, reviews: 1456, emoji: "🧘"},
+                    {id: 11, title: "Gaming Mechanical Keyboard", price: 129.99, category: "electronics", rating: 4.8, reviews: 987, emoji: "⌨️"},
+                    {id: 12, title: "Winter Jacket", price: 149.99, category: "clothing", rating: 4.4, reviews: 567, emoji: "🧥"}
+                ];
+                
+                this.users = [];
+                this.currentUser = null;
+                this.cart = [];
+                this.orders = [];
+            }
+
+            // Product Methods
+            getAllProducts() {
+                return this.products;
+            }
+
+            getProductsByCategory(category) {
+                if (category === 'all') return this.products;
+                return this.products.filter(p => p.category === category);
+            }
+
+            searchProducts(query) {
+                const lowercaseQuery = query.toLowerCase();
+                return this.products.filter(p => 
+                    p.title.toLowerCase().includes(lowercaseQuery) ||
+                    p.category.toLowerCase().includes(lowercaseQuery)
+                );
+            }
+
+            getProductById(id) {
+                return this.products.find(p => p.id === id);
+            }
+
+            // User Authentication
+            registerUser(userData) {
+                const existingUser = this.users.find(u => u.email === userData.email);
+                if (existingUser) {
+                    throw new Error('User already exists');
+                }
+                
+                const user = {
+                    id: this.users.length + 1,
+                    name: userData.name,
+                    email: userData.email,
+                    password: userData.password, // In real app, this would be hashed
+                    createdAt: new Date()
+                };
+                
+                this.users.push(user);
+                return user;
+            }
+
+            loginUser(email, password) {
+                const user = this.users.find(u => u.email === email && u.password === password);
+                if (!user) {
+                    throw new Error('Invalid credentials');
+                }
+                
+                this.currentUser = user;
+                return user;
+            }
+
+            logoutUser() {
+                this.currentUser = null;
+                this.cart = [];
+            }
+
+            // Cart Methods
+            addToCart(productId, quantity = 1) {
+                const product = this.getProductById(productId);
+                if (!product) throw new Error('Product not found');
+
+                const existingItem = this.cart.find(item => item.productId === productId);
+                
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    this.cart.push({
+                        productId,
+                        quantity,
+                        addedAt: new Date()
+                    });
+                }
+                
+                return this.cart;
+            }
+
+            removeFromCart(productId) {
+                this.cart = this.cart.filter(item => item.productId !== productId);
+                return this.cart;
+            }
+
+            updateCartQuantity(productId, quantity) {
+                const item = this.cart.find(item => item.productId === productId);
+                if (item) {
+                    if (quantity <= 0) {
+                        return this.removeFromCart(productId);
+                    }
+                    item.quantity = quantity;
+                }
+                return this.cart;
+            }
+
+            getCartItems() {
+                return this.cart.map(item => ({
+                    ...item,
+                    product: this.getProductById(item.productId)
+                }));
+            }
+
+            getCartTotal() {
+                return this.cart.reduce((total, item) => {
+                    const product = this.getProductById(item.productId);
+                    return total + (product.price * item.quantity);
+                }, 0);
+            }
+
+            // Order Methods
+            createOrder() {
+                if (this.cart.length === 0) {
+                    throw new Error('Cart is empty');
+                }
+
+                const order = {
+                    id: this.orders.length + 1,
+                    userId: this.currentUser?.id,
+                    items: [...this.cart],
+                    total: this.getCartTotal(),
+                    status: 'pending',
+                    createdAt: new Date()
+                };
+
+                this.orders.push(order);
+                this.cart = []; // Clear cart after order
+                return order;
+            }
+        }
+
+        // Initialize Backend
+        const backend = new ECommerceBackend();
+
+        // Frontend Controller
+        class ECommerceFrontend {
+            constructor() {
+                this.currentSection = 'products';
+                this.currentCategory = 'all';
+                this.init();
+            }
+
+            init() {
+                this.renderProducts();
+                this.updateCartCount();
+            }
+
+            renderProducts(products = null) {
+                const productsToRender = products || backend.getProductsByCategory(this.currentCategory);
+                const grid = document.getElementById('productsGrid');
+                
+                grid.innerHTML = productsToRender.map(product => `
+                    <div class="product-card">
+                        <div class="product-image">${product.emoji}</div>
+                        <div class="product-title">${product.title}</div>
+                        <div class="product-price">$${product.price.toFixed(2)}</div>
+                        <div class="product-rating">
+                            <span class="stars">${'★'.repeat(Math.floor(product.rating))}☆</span>
+                            <span>(${product.reviews})</span>
+                        </div>
+                        <button class="add-to-cart" onclick="app.addToCart(${product.id})">
+                            Add to Cart
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            addToCart(productId) {
+                try {
+                    backend.addToCart(productId);
+                    this.updateCartCount();
+                    this.showNotification('Product added to cart!');
+                } catch (error) {
+                    this.showNotification('Error adding to cart: ' + error.message, 'error');
+                }
+            }
+
+            updateCartCount() {
+                const count = backend.cart.reduce((sum, item) => sum + item.quantity, 0);
+                document.getElementById('cartCount').textContent = count;
+            }
+
+            renderCart() {
+                const cartItems = backend.getCartItems();
+                const cartContainer = document.getElementById('cartItems');
+                
+                if (cartItems.length === 0) {
+                    cartContainer.innerHTML = '<p>Your cart is empty</p>';
+                    document.getElementById('totalPrice').textContent = '0.00';
+                    return;
+                }
+
+                cartContainer.innerHTML = cartItems.map(item => `
+                    <div class="cart-item">
+                        <div class="cart-item-image">${item.product.emoji}</div>
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.product.title}</div>
+                            <div class="cart-item-price">$${item.product.price.toFixed(2)}</div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" onclick="app.updateQuantity(${item.productId}, ${item.quantity - 1})">-</button>
+                                <span>Qty: ${item.quantity}</span>
+                                <button class="qty-btn" onclick="app.updateQuantity(${item.productId}, ${item.quantity + 1})">+</button>
+                                <button class="qty-btn" onclick="app.removeFromCart(${item.productId})" style="margin-left: 10px; background: #ff4444; color: white;">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('totalPrice').textContent = backend.getCartTotal().toFixed(2);
+            }
+
+            updateQuantity(productId, newQuantity) {
+                backend.updateCartQuantity(productId, newQuantity);
+                this.renderCart();
+                this.updateCartCount();
+            }
+
+            removeFromCart(productId) {
+                backend.removeFromCart(productId);
+                this.renderCart();
+                this.updateCartCount();
+            }
+
+            filterProducts(category) {
+                this.currentCategory = category;
+                
+                // Update active category button
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                event.target.classList.add('active');
+                
+                this.renderProducts();
+            }
+
+            searchProducts() {
+                const query = document.getElementById('searchInput').value.trim();
+                if (query) {
+                    const results = backend.searchProducts(query);
+                    this.renderProducts(results);
+                } else {
+                    this.renderProducts();
+                }
+            }
+
+            showSection(section) {
+                // Hide all sections
+                document.getElementById('productsSection').style.display = 'none';
+                document.getElementById('cartSection').style.display = 'none';
+                
+                // Show selected section
+                if (section === 'cart') {
+                    document.getElementById('cartSection').style.display = 'block';
+                    this.renderCart();
+                } else {
+                    document.getElementById('productsSection').style.display = 'block';
+                }
+                
+                this.currentSection = section;
+            }
+
+            showNotification(message, type = 'success') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 20px;
+                    background: ${type === 'error' ? '#ff4444' : '#4CAF50'};
+                    color: white;
+                    border-radius: 4px;
+                    z-index: 3000;
+                    font-weight: bold;
+                `;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+
+            checkout() {
+                if (!backend.currentUser) {
+                    this.showNotification('Please sign in to checkout', 'error');
+                    showAuthModal();
+                    return;
+                }
+
+                try {
+                    const order = backend.createOrder();
+                    this.updateCartCount();
+                    this.renderCart();
+                    this.showNotification(`Order #${order.id} placed successfully!`);
+                } catch (error) {
+                    this.showNotification('Error: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Authentication Functions
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const user = backend.loginUser(email, password);
+                document.getElementById('authLink').textContent = `Hi, ${user.name}`;
+                closeAuthModal();
+                app.showNotification('Logged in successfully!');
+            } catch (error) {
+                app.showNotification('Login failed: ' + error.message, 'error');
+            }
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            try {
+                const user = backend.registerUser({ name, email, password });
+                backend.currentUser = user;
+                document.getElementById('authLink').textContent = `Hi, ${user.name}`;
+                closeAuthModal();
+                app.showNotification('Account created successfully!');
+            } catch (error) {
+                app.showNotification('Signup failed: ' + error.message, 'error');
+            }
+        }
+
+        // Global Functions
+        function showSection(section) {
+            app.showSection(section);
+        }
+
+        function filterProducts(category) {
+            app.filterProducts(category);
+        }
+
+        function searchProducts() {
+            app.searchProducts();
+        }
+
+        function checkout() {
+            app.checkout();
+        }
+
+        // Initialize App
+        const app = new ECommerceFrontend();
+
+        // Add some demo users for testing
+        backend.registerUser({ name: 'John Doe', email: 'john@example.com', password: 'password123' });
+        backend.registerUser({ name: 'Jane Smith', email: 'jane@example.com', password: 'password123' });
+
+        // Search on Enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('authModal');
+            if (event.target === modal) {
+                closeAuthModal();
+            }
+        }
+    </script>
+</body>
+</html>
